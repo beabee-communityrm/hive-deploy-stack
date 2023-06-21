@@ -104,7 +104,7 @@ services:
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.entryPoints=https"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${BEABEE_DOMAIN}`)"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls=true"
-      #- "traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls.certResolver=letsencrypt"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls.certResolver=letsencrypt"
       - "traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=80"
     environment:
       LEGACY_APP_URL: http://router
