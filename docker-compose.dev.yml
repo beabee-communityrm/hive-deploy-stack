@@ -62,9 +62,10 @@ services:
       hive_service: cron
 
   img_upload_app:
-    image: hascheksolutions/pictshare:72394f17
+    image: ghcr.io/hascheksolutions/pictshare:8c2702be
     restart: unless-stopped
     environment:
+      URL: ${BEABEE_AUDIENCE}/uploads/
       CONTENTCONTROLLERS: IMAGE,TEXT
     init: true
     volumes:
@@ -103,7 +104,8 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.entryPoints=https"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${BEABEE_DOMAIN}`)"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls.certResolver=letsencrypt"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls=true"
+#     - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls.certResolver=letsencrypt"
       - "traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=80"
     environment:
       LEGACY_APP_URL: http://router
@@ -121,7 +123,8 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-mail.entryPoints=https"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-mail.rule=Host(`mail.${BEABEE_DOMAIN}`)"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-mail.tls.certResolver=letsencrypt"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-mail.tls=true"
+#     - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-mail.tls.certResolver=letsencrypt"
       - "traefik.http.services.${COMPOSE_PROJECT_NAME}-mail.loadbalancer.server.port=80"
     networks:
       - internal
