@@ -93,7 +93,8 @@ services:
       APP_BASE_URL: ${BEABEE_AUDIENCE}
       API_BASE_URL: /api/1.0
       CNR_MODE: ${BEABEE_CNR_MODE-}
-      APPSIGNAL_KEY: ${APPSIGNAL_KEY}
+      APPSIGNAL_KEY: ${APPSIGNAL_KEY-}
+      MAPTILER_KEY: ${BEABEE_MAPTILER_KEY-}
     networks:
       - internal
 
