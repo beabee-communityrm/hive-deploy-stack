@@ -5,7 +5,7 @@ x-logging-env: &logging-env
   hive_service:
 
 x-base-app: &base-app
-  image: beabee/beabee:v0.4.9
+  image: beabee/beabee:v0.4.10
   env_file:
     - stack.env
   networks:
@@ -74,7 +74,7 @@ services:
       - internal
 
   router:
-    image: beabee/router:v0.4.9
+    image: beabee/router:v0.4.10
     restart: unless-stopped
     networks:
       - internal
@@ -87,7 +87,7 @@ services:
       driver: none
 
   frontend:
-    image: beabee/frontend:v0.4.6
+    image: beabee/frontend:v0.4.7
     restart: unless-stopped
     environment:
       APP_BASE_URL: ${BEABEE_AUDIENCE}
