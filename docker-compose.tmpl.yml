@@ -113,6 +113,7 @@ services:
       LEGACY_APP_URL: http://router
       LEGACY_APP_COOKIE_DOMAIN: ${BEABEE_COOKIE_DOMAIN}
       FRONTEND_APP_URL: http://frontend
+      TRUSTED_ORIGINS: ${BEABEE_TRUSTEDORIGINS-}
     networks:
       - internal
       - traefik-ingress
