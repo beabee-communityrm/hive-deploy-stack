@@ -99,7 +99,7 @@ services:
       - internal
 
   app_router:
-    image: beabee/app-router:v0.1.1
+    image: beabee/app-router:v0.1.2
     restart: unless-stopped
     labels:
       - "traefik.docker.network=traefik-ingress"
@@ -113,6 +113,7 @@ services:
       LEGACY_APP_URL: http://router
       LEGACY_APP_COOKIE_DOMAIN: ${BEABEE_COOKIE_DOMAIN}
       FRONTEND_APP_URL: http://frontend
+      TRUSTED_ORIGINS: ${BEABEE_TRUSTEDORIGINS-}
     networks:
       - internal
       - traefik-ingress
