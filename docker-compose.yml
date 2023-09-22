@@ -99,7 +99,7 @@ services:
       - internal
 
   app_router:
-    image: beabee/app-router:v0.1.3
+    image: beabee/app-router:v0.1.4
     restart: unless-stopped
     labels:
       - "traefik.docker.network=traefik-ingress"
