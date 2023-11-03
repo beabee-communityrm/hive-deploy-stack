@@ -62,7 +62,7 @@ services:
       hive_service: cron
 
   img_upload_app:
-    image: beabee/pictshare:v0.1.3
+    image: beabee/pictshare:v0.1.4
     restart: unless-stopped
     environment:
       URL: ${BEABEE_AUDIENCE}/uploads/
