@@ -67,6 +67,7 @@ services:
     environment:
       URL: ${BEABEE_AUDIENCE}/uploads/
       CONTENTCONTROLLERS: IMAGE,TEXT
+      JPEG_CLEAN_METADATA: false
     init: true
     volumes:
       - upload_data:/var/www/data
