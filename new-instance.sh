@@ -1,12 +1,16 @@
 #!/bin/bash
 
-if [ $# -ne 2 ]; then
-        echo "Usage: ./new-instance.sh <name> <domain>"
+if [ $# -lt 1 ]; then
+        echo "Usage: ./new-instance.sh <name> [<domain>]"
         exit 1
 fi
 
 name=$1
 domain=$2
+
+if [ "$domain" == "" ]; then
+    domain=$name.clients.hive.beabee.io
+fi
 
 secret=$(pwgen 64)
 gc_secret=$(pwgen 128)
