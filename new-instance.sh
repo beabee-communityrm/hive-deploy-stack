@@ -51,7 +51,7 @@ BEABEE_STRIPE_COUNTRY=eu
 
 BEABEE_APPOVERRIDES='{ "projects": { "config": { "disabled": true } }, "settings": { "subApps": { "pages": { "config": { "hidden": true } }, "newsletters": { "config": { "hidden": true } }, "email": { "config": { "hidden": true } }, "options": { "config": { "hidden": true } } } }, "tools": { "subApps": { "referrals": { "config": { "disabled": true } } } }, "polls": { "config": { "menu": "none" } }, "reports": { "config": { "disabled": true } } }'
 
-TYPEORM_URL=postgres://$db_name:$db_pass@postgres-postgres-1-1/$db_name
+BEABEE_DATABASE_URL=postgres://$db_name:$db_pass@postgres-postgres-1-1/$db_name
 EOF
 
 echo
