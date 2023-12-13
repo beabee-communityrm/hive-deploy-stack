@@ -1,12 +1,16 @@
 #!/bin/bash
 
-if [ $# -ne 2 ]; then
-        echo "Usage: ./new-instance.sh <name> <domain>"
+if [ $# -lt 1 ]; then
+        echo "Usage: ./new-instance.sh <name> [<domain>]"
         exit 1
 fi
 
 name=$1
 domain=$2
+
+if [ "$domain" == "" ]; then
+    domain=$name.clients.hive.beabee.io
+fi
 
 secret=$(pwgen 64)
 gc_secret=$(pwgen 128)
@@ -47,7 +51,7 @@ BEABEE_STRIPE_COUNTRY=eu
 
 BEABEE_APPOVERRIDES='{ "projects": { "config": { "disabled": true } }, "settings": { "subApps": { "pages": { "config": { "hidden": true } }, "newsletters": { "config": { "hidden": true } }, "email": { "config": { "hidden": true } }, "options": { "config": { "hidden": true } } } }, "tools": { "subApps": { "referrals": { "config": { "disabled": true } } } }, "polls": { "config": { "menu": "none" } }, "reports": { "config": { "disabled": true } } }'
 
-TYPEORM_URL=postgres://$db_name:$db_pass@postgres-postgres-1-1/$db_name
+BEABEE_DATABASE_URL=postgres://$db_name:$db_pass@postgres-postgres-1-1/$db_name
 EOF
 
 echo
