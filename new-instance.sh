@@ -13,6 +13,7 @@ if [ "$domain" == "" ]; then
 fi
 
 secret=$(pwgen 64)
+service_secret=$(pwgen 64)
 gc_secret=$(pwgen 128)
 nl_secret=$(pwgen 64)
 
@@ -24,6 +25,7 @@ BEABEE_DOMAIN=$domain
 BEABEE_AUDIENCE=https://$domain
 BEABEE_DEV=false
 BEABEE_SECRET=$secret
+BEABEE_SERVICE_SECRET=$service_secret
 BEABEE_COOKIE_DOMAIN=$domain
 
 BEABEE_COUNTRYCODE=de
