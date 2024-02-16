@@ -5,7 +5,7 @@ x-logging-env: &logging-env
   hive_service:
 
 x-base-app: &base-app
-  image: beabee/beabee:API_VERSION
+  image: beabee/beabee:v0.9.9
   env_file:
     - stack.env
   networks:
@@ -75,7 +75,7 @@ services:
       - internal
 
   router:
-    image: beabee/router:API_VERSION
+    image: beabee/router:v0.9.9
     restart: unless-stopped
     networks:
       - internal
@@ -88,7 +88,7 @@ services:
       driver: none
 
   frontend:
-    image: beabee/frontend:FRONTEND_VERSION
+    image: beabee/frontend:v0.9.9
     restart: unless-stopped
     environment:
       APP_BASE_URL: ${BEABEE_AUDIENCE}
@@ -101,7 +101,7 @@ services:
       - internal
 
   app_router:
-    image: beabee/app-router:ROUTER_VERSION
+    image: beabee/app-router:v0.1.4
     restart: unless-stopped
     labels:
       - "traefik.docker.network=traefik-ingress"
