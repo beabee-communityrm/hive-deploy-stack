@@ -32,6 +32,17 @@ BEABEE_EMAIL_PROVIDER=sendgrid
 BEABEE_EMAIL_SETTINGS_APIKEY=SG.???
 
 BEABEE_NEWSLETTER_PROVIDER=none
+
+BEABEE_APPOVERRIDES='{ "projects": { "config": { "disabled": true } }, "settings": { "subApps": { "pages": { "config": { "hidden": true } }, "newsletters": { "config": { "hidden": true } }, "email": { "config": { "hidden": true } }, "options": { "config": { "hidden": true } } } }, "tools": { "subApps": { "referrals": { "config": { "disabled": true } } } }, "polls": { "config": { "menu": "none" } }, "reports": { "config": { "disabled": true } } }'
+
+BEABEE_DATABASE_URL=postgres://$db_name:$db_pass@postgres-postgres-1-1/$db_name
+
+EOF
+
+if [[ $name == cnr-* ]]; then
+    echo BEABEE_CNR_MODE=true
+else
+    cat <<EOF
 BEABEE_NEWSLETTER_SETTINGS_APIKEY=???
 BEABEE_NEWSLETTER_SETTINGS_DATACENTER=???
 BEABEE_NEWSLETTER_SETTINGS_LISTID=???
@@ -46,11 +57,9 @@ BEABEE_STRIPE_SECRETKEY=sk_live_???
 BEABEE_STRIPE_WEBHOOKSECRET=whsec_???
 BEABEE_STRIPE_MEMBERSHIPPRODUCTID=prod_???
 BEABEE_STRIPE_COUNTRY=eu
-
-BEABEE_APPOVERRIDES='{ "projects": { "config": { "disabled": true } }, "settings": { "subApps": { "pages": { "config": { "hidden": true } }, "newsletters": { "config": { "hidden": true } }, "email": { "config": { "hidden": true } }, "options": { "config": { "hidden": true } } } }, "tools": { "subApps": { "referrals": { "config": { "disabled": true } } } }, "polls": { "config": { "menu": "none" } }, "reports": { "config": { "disabled": true } } }'
-
-BEABEE_DATABASE_URL=postgres://$db_name:$db_pass@postgres-postgres-1-1/$db_name
 EOF
+
+fi
 
 echo
 echo ===============================================================
