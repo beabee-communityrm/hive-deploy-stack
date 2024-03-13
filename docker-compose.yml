@@ -122,7 +122,7 @@ services:
       - traefik-ingress
 
   mail:
-    image: mailhog/mailhog:latest
+    image: maildev/maildev:2.1.0
     restart: unless-stopped
     labels:
       - "traefik.docker.network=traefik-ingress"
@@ -131,7 +131,7 @@ services:
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-mail.rule=Host(`mail.${BEABEE_DOMAIN}`)"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-mail.tls=true"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-mail.tls.certResolver=letsencrypt"
-      - "traefik.http.services.${COMPOSE_PROJECT_NAME}-mail.loadbalancer.server.port=8025"
+      - "traefik.http.services.${COMPOSE_PROJECT_NAME}-mail.loadbalancer.server.port=1080"
     networks:
       - internal
       - traefik-ingress
