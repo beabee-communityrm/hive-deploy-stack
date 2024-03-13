@@ -28,14 +28,14 @@ BEABEE_COUNTRYCODE=de
 BEABEE_CURRENCYCODE=EUR
 BEABEE_CURRENCYSYMBOL=€
 
+BEABEE_APPOVERRIDES='{ "gift": { "config": { "disabled": true } }, "projects": { "config": { "disabled": true } }, "settings": { "subApps": { "pages": { "config": { "hidden": true } }, "newsletters": { "config": { "hidden": true } }, "email": { "config": { "hidden": true } }, "options": { "config": { "hidden": true } } } }, "tools": { "subApps": { "referrals": { "config": { "disabled": true } } } }, "polls": { "config": { "menu": "none" } }, "reports": { "config": { "disabled": true } } }'
+
+BEABEE_DATABASE_URL=postgres://$db_name:$db_pass@postgres-postgres-1-1/$db_name
+
 BEABEE_EMAIL_PROVIDER=sendgrid
 BEABEE_EMAIL_SETTINGS_APIKEY=SG.???
 
 BEABEE_NEWSLETTER_PROVIDER=none
-
-BEABEE_APPOVERRIDES='{ "gift": { "config": { "disabled": true } }, "projects": { "config": { "disabled": true } }, "settings": { "subApps": { "pages": { "config": { "hidden": true } }, "newsletters": { "config": { "hidden": true } }, "email": { "config": { "hidden": true } }, "options": { "config": { "hidden": true } } } }, "tools": { "subApps": { "referrals": { "config": { "disabled": true } } } }, "polls": { "config": { "menu": "none" } }, "reports": { "config": { "disabled": true } } }'
-
-BEABEE_DATABASE_URL=postgres://$db_name:$db_pass@postgres-postgres-1-1/$db_name
 
 EOF
 
