@@ -6,7 +6,8 @@ if [ $# -ne 2 ]; then
 fi
 
 name=$1
-domain=$2
+main_domain=$2
+hive_domain=$1.clients.hive.beabee.io
 
 secret=$(pwgen 64)
 service_secret=$(pwgen 64)
@@ -17,12 +18,14 @@ db_name=beabee-$name
 db_pass=$(pwgen 64)
 
 cat <<EOF
-BEABEE_DOMAIN=$domain
-BEABEE_AUDIENCE=https://$domain
+BEABEE_HIVE_ID=$name
+
+BEABEE_DOMAIN=$main_domain
+BEABEE_AUDIENCE=https://$main_domain
 BEABEE_DEV=false
 BEABEE_SECRET=$secret
 BEABEE_SERVICE_SECRET=$service_secret
-BEABEE_COOKIE_DOMAIN=$domain
+BEABEE_COOKIE_DOMAIN=$main_domain
 
 BEABEE_COUNTRYCODE=de
 BEABEE_CURRENCYCODE=EUR
@@ -101,8 +104,8 @@ cat <<EOF
 # DNS records
 
 Type: CNAME
-Name: $domain
-Value: $name.clients.hive.beabee.io
+Name: $main_domain
+Value: $hive_domain
 
 ... add other records
 
@@ -110,11 +113,11 @@ Value: $name.clients.hive.beabee.io
 
 ## GoCardless
 
-Webhook URL: https://$domain/webhook/gc
+Webhook URL: https://$hive_domain/webhook/gc
 Secret: $gc_secret
 
 
 ## Mailchimp
 
-Webhook URL: https://$domain/webhook/mailchimp?secret=$nl_secret
+Webhook URL: https://$hive_domain/webhook/mailchimp?secret=$nl_secret
 EOF
