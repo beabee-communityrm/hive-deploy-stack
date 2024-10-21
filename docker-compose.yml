@@ -88,7 +88,7 @@ services:
       driver: none
 
   frontend:
-    image: beabee/frontend:v0.19.0
+    image: beabee/frontend:v0.19.1
     restart: unless-stopped
     environment:
       APP_BASE_URL: ${BEABEE_AUDIENCE}
