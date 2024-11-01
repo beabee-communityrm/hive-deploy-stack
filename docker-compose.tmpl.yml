@@ -87,7 +87,7 @@ services:
 
   # Frontend service
   frontend:
-    image: beabee/frontend:FRONTEND_VERSION
+    image: beabee/beabee-frontend:FRONTEND_VERSION
     restart: unless-stopped
     environment:
       APP_BASE_URL: ${BEABEE_AUDIENCE}
