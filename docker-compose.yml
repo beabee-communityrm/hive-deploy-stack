@@ -1,11 +1,12 @@
 version: '3.4'
 
+# Logging environment variables
 x-logging-env: &logging-env
   hive_stack: ${COMPOSE_PROJECT_NAME}
-  hive_service:
+  hive_service: # Set by each service
 
+# Base app configuration
 x-base-app: &base-app
-  image: beabee/beabee:v0.19.2
   env_file:
     - stack.env
   networks:
@@ -17,7 +18,8 @@ x-base-app: &base-app
       gelf-address: "udp://127.0.0.1:12201"
       env: hive_stack,hive_service
 
-x-app: &app
+# Service app configuration
+x-service-app: &service-app
   <<: *base-app
   restart: unless-stopped
   depends_on:
@@ -25,70 +27,67 @@ x-app: &app
       condition: service_completed_successfully
 
 services:
-  migration:
-    <<: *base-app
-    command: 'npm run typeorm migration:run'
-    environment:
-      <<: *logging-env
-      hive_service: migration
 
+  # Backend services
   app:
-    <<: *app
+    <<: *service-app
+    image: beabee/beabee-legacy-app:dev
     environment:
       <<: *logging-env
       hive_service: app
 
   api_app:
-    <<: *app
-    command: 'node built/api/app'
+    <<: *service-app
+    image: beabee/beabee-api-app:dev
     environment:
       <<: *logging-env
       hive_service: api_app
 
   webhook_app:
-    <<: *app
-    command: 'node built/webhooks/app'
+    <<: *service-app
+    image: beabee/beabee-webhook-app:dev
     environment:
       <<: *logging-env
       hive_service: webhook_app
 
-  cron:
-    <<: *app
-    user: root
-    command: 'crond -f -d 7'
-    init: true
+  cron_app:
+    <<: *service-app
+    image: beabee/beabee-cron-app:dev
     environment:
       <<: *logging-env
       hive_service: cron
 
   img_upload_app:
-    image: beabee/pictshare:v0.1.4
+    image: beabee/pictshare:v0.2.0
     restart: unless-stopped
     environment:
       URL: ${BEABEE_AUDIENCE}/uploads/
-      CONTENTCONTROLLERS: IMAGE
-      JPEG_CLEAN_METADATA: false
-    init: true
     volumes:
       - upload_data:/var/www/data
     networks:
       - internal
 
-  router:
-    image: beabee/router:v0.19.2
-    restart: unless-stopped
-    networks:
-      - internal
+  # Migration service
+  migration:
+    <<: *base-app
+    image: beabee/beabee-api-app:dev
+    command: 'npm run typeorm migration:run'
+    environment:
+      <<: *logging-env
+      hive_service: migration
 
+  # Helper to run commands (GELF logging disabled)
   run:
-    <<: *app
+    <<: *base-app
+    image: beabee/beabee-api-app:dev
     profiles:
       - tools
     logging:
       driver: none
 
+  # Frontend service
   frontend:
-    image: beabee/frontend:v0.19.2
+    image: beabee/beabee-frontend:dev
     restart: unless-stopped
     environment:
       APP_BASE_URL: ${BEABEE_AUDIENCE}
@@ -101,8 +100,9 @@ services:
     networks:
       - internal
 
+  # Application router
   app_router:
-    image: beabee/app-router:v0.1.5
+    image: beabee/beabee-router:dev
     restart: unless-stopped
     labels:
       - "traefik.docker.network=traefik-ingress"
@@ -113,9 +113,7 @@ services:
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls.certResolver=letsencrypt"
       - "traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=80"
     environment:
-      LEGACY_APP_URL: http://router
       LEGACY_APP_COOKIE_DOMAIN: ${BEABEE_COOKIE_DOMAIN}
-      FRONTEND_APP_URL: http://frontend
       TRUSTED_ORIGINS: ${BEABEE_TRUSTEDORIGINS-}
     networks:
       - internal
