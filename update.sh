@@ -8,6 +8,8 @@ echo "API_VERSION: $API_VERSION"
 echo "FRONTEND_VERSION: $FRONTEND_VERSION"
 echo "ROUTER_VERSION: $ROUTER_VERSION"
 
+exit 0
+
 if [ "$1" != '--prerelease' ] && \
    ([ "$(./semver.sh get prerelease $API_VERSION)" != '' ] || \
    [ "$(./semver.sh get prerelease $FRONTEND_VERSION)" != '' ] || \
