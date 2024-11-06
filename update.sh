@@ -12,4 +12,4 @@ fi
 # Update docker-compose.yml with new versions
 
 cat docker-compose.tmpl.yml |
-    sed "s/VERSION/$VERSION/" > docker-compose.yml
+    sed "s/__VERSION__/$VERSION/" > docker-compose.yml

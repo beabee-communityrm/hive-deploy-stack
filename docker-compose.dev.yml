@@ -1,22 +1,4 @@
 services:
-  # Override image versions
-  app:
-    image: beabee/beabee-legacy-app:${HIVE_VERSION}
-  api_app:
-    image: beabee/beabee-api-app:${HIVE_VERSION}
-  webhook_app:
-    image: beabee/beabee-webhook-app:${HIVE_VERSION}
-  cron_app:
-    image: beabee/beabee-cron-app:${HIVE_VERSION}
-  migration:
-    image: beabee/beabee-api-app:${HIVE_VERSION}
-  run:
-    image: beabee/beabee-api-app:${HIVE_VERSION}
-  frontend:
-    image: beabee/beabee-frontend:${HIVE_VERSION}
-  app_router:
-    image: beabee/beabee-router:${HIVE_VERSION}
-
   # Add extra services
   mail:
     image: maildev/maildev:2.1.0
