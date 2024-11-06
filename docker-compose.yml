@@ -119,6 +119,24 @@ services:
       - internal
       - traefik-ingress
 
+  # Telgram bot
+  telegram_bot:
+    profiles:
+      - telegram
+    image: beabee/telegram-bot:latest
+    volumes:
+      - telegram-bot_data:/app/telegram-bot/data
+    restart: unless-stopped
+    environment:
+      BEABEE_AUDIENCE: ${BEABEE_AUDIENCE}
+      API_PROXY_URL: ${BEABEE_AUDIENCE}
+      TELEGRAM_TOKEN: ${BEABEE_TELEGRAM_BOT_TOKEN}
+      BEABEE_API_TOKEN: ${BEABEE_TELEGRAM_BOT_API_TOKEN}
+      BEABEE_SERVICE_SECRET: ${BEABEE_SERVICE_SECRET}
+      TELEGRAM_BOT_ENVIRONMENT: ${BEABEE_ENVIRONMENT}
+      DEBUG: grammy*
+      API_BASE_URL: /api/1.0
+
 networks:
   internal:
     driver: bridge
@@ -129,3 +147,4 @@ networks:
 
 volumes:
   upload_data:
+  telegram-bot_data:
