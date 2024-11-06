@@ -16,6 +16,7 @@ services:
       - traefik-ingress
 
   telegram_bot:
+    profiles: [telegram]
     image: beabee/telegram-bot:latest
     volumes:
       - telegram-bot_data:/app/telegram-bot/data
