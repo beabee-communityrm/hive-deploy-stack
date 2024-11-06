@@ -1,11 +1,12 @@
 version: '3.4'
 
+# Logging environment variables
 x-logging-env: &logging-env
   hive_stack: ${COMPOSE_PROJECT_NAME}
-  hive_service:
+  hive_service: # Set by each service
 
+# Base app configuration
 x-base-app: &base-app
-  image: beabee/beabee:API_VERSION
   env_file:
     - stack.env
   networks:
@@ -17,7 +18,8 @@ x-base-app: &base-app
       gelf-address: "udp://127.0.0.1:12201"
       env: hive_stack,hive_service
 
-x-app: &app
+# Service app configuration
+x-service-app: &service-app
   <<: *base-app
   restart: unless-stopped
   depends_on:
@@ -25,70 +27,67 @@ x-app: &app
       condition: service_completed_successfully
 
 services:
-  migration:
-    <<: *base-app
-    command: 'npm run typeorm migration:run'
-    environment:
-      <<: *logging-env
-      hive_service: migration
 
+  # Backend services
   app:
-    <<: *app
+    <<: *service-app
+    image: beabee/beabee-legacy-app:${HIVE_VERSION:-__VERSION__}
     environment:
       <<: *logging-env
       hive_service: app
 
   api_app:
-    <<: *app
-    command: 'node built/api/app'
+    <<: *service-app
+    image: beabee/beabee-api-app:${HIVE_VERSION:-__VERSION__}
     environment:
       <<: *logging-env
       hive_service: api_app
 
   webhook_app:
-    <<: *app
-    command: 'node built/webhooks/app'
+    <<: *service-app
+    image: beabee/beabee-webhook-app:${HIVE_VERSION:-__VERSION__}
     environment:
       <<: *logging-env
       hive_service: webhook_app
 
-  cron:
-    <<: *app
-    user: root
-    command: 'crond -f -d 7'
-    init: true
+  cron_app:
+    <<: *service-app
+    image: beabee/beabee-cron-app:${HIVE_VERSION:-__VERSION__}
     environment:
       <<: *logging-env
       hive_service: cron
 
   img_upload_app:
-    image: beabee/pictshare:v0.1.4
+    image: beabee/pictshare:v0.2.0
     restart: unless-stopped
     environment:
       URL: ${BEABEE_AUDIENCE}/uploads/
-      CONTENTCONTROLLERS: IMAGE
-      JPEG_CLEAN_METADATA: false
-    init: true
     volumes:
       - upload_data:/var/www/data
     networks:
       - internal
 
-  router:
-    image: beabee/router:API_VERSION
-    restart: unless-stopped
-    networks:
-      - internal
+  # Migration service
+  migration:
+    <<: *base-app
+    image: beabee/beabee-api-app:${HIVE_VERSION:-__VERSION__}
+    command: 'npm run typeorm migration:run'
+    environment:
+      <<: *logging-env
+      hive_service: migration
 
+  # Helper to run commands (GELF logging disabled)
   run:
-    <<: *app
+    <<: *base-app
+    image: beabee/beabee-api-app:${HIVE_VERSION:-__VERSION__}
     profiles:
       - tools
     logging:
       driver: none
 
+  # Frontend service
   frontend:
-    image: beabee/frontend:FRONTEND_VERSION
+    image: beabee/beabee-frontend:${HIVE_VERSION:-__VERSION__}
     restart: unless-stopped
     environment:
       APP_BASE_URL: ${BEABEE_AUDIENCE}
@@ -101,8 +100,9 @@ services:
     networks:
       - internal
 
+  # Application router
   app_router:
-    image: beabee/app-router:ROUTER_VERSION
+    image: beabee/beabee-router:${HIVE_VERSION:-__VERSION__}
     restart: unless-stopped
     labels:
       - "traefik.docker.network=traefik-ingress"
@@ -113,13 +113,29 @@ services:
       #- "traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls.certResolver=letsencrypt"
       - "traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=80"
     environment:
-      LEGACY_APP_URL: http://router
       LEGACY_APP_COOKIE_DOMAIN: ${BEABEE_COOKIE_DOMAIN}
-      FRONTEND_APP_URL: http://frontend
       TRUSTED_ORIGINS: ${BEABEE_TRUSTEDORIGINS-}
     networks:
       - internal
       - traefik-ingress
+
+  # Telgram bot
+  telegram_bot:
+    profiles:
+      - telegram
+    image: beabee/telegram-bot:latest
+    volumes:
+      - telegram-bot_data:/app/telegram-bot/data
+    restart: unless-stopped
+    environment:
+      BEABEE_AUDIENCE: ${BEABEE_AUDIENCE}
+      API_PROXY_URL: ${BEABEE_AUDIENCE}
+      TELEGRAM_TOKEN: ${BEABEE_TELEGRAM_BOT_TOKEN}
+      BEABEE_API_TOKEN: ${BEABEE_TELEGRAM_BOT_API_TOKEN}
+      BEABEE_SERVICE_SECRET: ${BEABEE_SERVICE_SECRET}
+      TELEGRAM_BOT_ENVIRONMENT: ${BEABEE_ENVIRONMENT}
+      DEBUG: grammy*
+      API_BASE_URL: /api/1.0
 
 networks:
   internal:
@@ -131,3 +147,4 @@ networks:
 
 volumes:
   upload_data:
+  telegram-bot_data:
