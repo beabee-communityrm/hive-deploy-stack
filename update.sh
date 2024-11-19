@@ -1,5 +1,7 @@
 #!/bin/bash
 
+exit 0
+
 VERSION=$(cat VERSION)
 
 if [ "$1" != '--prerelease' ] && \
