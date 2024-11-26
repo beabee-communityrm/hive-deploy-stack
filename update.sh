@@ -9,8 +9,6 @@ then
     exit 0
 fi
 
-exit 0
-
 # Update docker-compose.yml with new versions
 
 cat docker-compose.tmpl.yml |
