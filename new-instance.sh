@@ -87,6 +87,7 @@ GRANT SELECT, INSERT ON invoices.payment_seen TO "beabee-invoices";
 
 -- Post migration step for invoicing
 
+GRANT SELECT (starts) ON callout TO "beabee-invoices";
 GRANT SELECT (id, "contributionMonthlyAmount", "contributionType") ON contact TO "beabee-invoices";
 GRANT SELECT ON contact_role TO "beabee-invoices";
 GRANT SELECT (id, amount, status, "chargeDate") ON payment TO "beabee-invoices";
