@@ -31,28 +31,28 @@ services:
   # Backend services
   app:
     <<: *service-app
-    image: beabee/beabee-legacy-app:${HIVE_VERSION:-v0.25.0}
+    image: beabee/beabee-legacy-app:${HIVE_VERSION:-v0.25.1}
     environment:
       <<: *logging-env
       hive_service: app
 
   api_app:
     <<: *service-app
-    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.25.0}
+    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.25.1}
     environment:
       <<: *logging-env
       hive_service: api_app
 
   webhook_app:
     <<: *service-app
-    image: beabee/beabee-webhook-app:${HIVE_VERSION:-v0.25.0}
+    image: beabee/beabee-webhook-app:${HIVE_VERSION:-v0.25.1}
     environment:
       <<: *logging-env
       hive_service: webhook_app
 
   cron_app:
     <<: *service-app
-    image: beabee/beabee-cron-app:${HIVE_VERSION:-v0.25.0}
+    image: beabee/beabee-cron-app:${HIVE_VERSION:-v0.25.1}
     environment:
       <<: *logging-env
       hive_service: cron
@@ -70,7 +70,7 @@ services:
   # Migration service
   migration:
     <<: *base-app
-    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.25.0}
+    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.25.1}
     command: 'npm run typeorm migration:run'
     environment:
       <<: *logging-env
@@ -79,7 +79,7 @@ services:
   # Helper to run commands (GELF logging disabled)
   run:
     <<: *base-app
-    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.25.0}
+    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.25.1}
     profiles:
       - tools
     logging:
@@ -87,7 +87,7 @@ services:
 
   # Frontend service
   frontend:
-    image: beabee/beabee-frontend:${HIVE_VERSION:-v0.25.0}
+    image: beabee/beabee-frontend:${HIVE_VERSION:-v0.25.1}
     restart: unless-stopped
     environment:
       APP_BASE_URL: ${BEABEE_AUDIENCE}
@@ -102,7 +102,7 @@ services:
 
   # Application router
   app_router:
-    image: beabee/beabee-router:${HIVE_VERSION:-v0.25.0}
+    image: beabee/beabee-router:${HIVE_VERSION:-v0.25.1}
     restart: unless-stopped
     labels:
       - "traefik.docker.network=traefik-ingress"
