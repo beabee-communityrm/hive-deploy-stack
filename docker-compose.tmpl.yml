@@ -57,14 +57,24 @@ services:
       <<: *logging-env
       hive_service: cron
 
-  img_upload_app:
-    image: beabee/pictshare:v0.3.0
+  # MinIO service
+  minio:
+    image: beabee/beabee-minio:${HIVE_VERSION:-__VERSION__}
     restart: unless-stopped
-    environment:
-      URL: ${BEABEE_AUDIENCE}/uploads/
-      CONTENTCONTROLLERS: ${BEABEE_UPLOAD_CONTENTCONTROLLERS:-IMAGE}
+    command: server /data --console-address ":9001"
     volumes:
-      - upload_data:/var/www/data
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    environment:
+      MINIO_ROOT_USER: ${BEABEE_MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${BEABEE_MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_REGION: ${BEABEE_MINIO_REGION:-us-east-1}
+      BEABEE_MINIO_BUCKET: ${BEABEE_MINIO_BUCKET:-uploads}
+      BEABEE_MINIO_ENDPOINT: ${BEABEE_MINIO_ENDPOINT:-http://minio:9000}
     networks:
       - internal
 
@@ -76,6 +86,36 @@ services:
     environment:
       <<: *logging-env
       hive_service: migration
+
+  # Uploads migration service
+  uploads_migration:
+    image: beabee/beabee-api-app:${HIVE_VERSION:-__VERSION__}
+    command: >
+      /bin/sh -c "
+      if [ \"$${MIGRATE_UPLOADS}\" = \"true\" ]; then
+        echo 'Starting uploads migration...' &&
+        yarn backend-cli migrate-uploads --source=/old_data;
+      else
+        echo 'Uploads migration skipped (MIGRATE_UPLOADS is not set to true)' &&
+        exit 0;
+      fi
+      "
+    volumes:
+      - upload_data:/old_data
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+      minio:
+        condition: service_healthy
+    environment:
+      <<: *logging-env
+      hive_service: uploads_migration
+      MIGRATE_UPLOADS: ${MIGRATE_UPLOADS:-false}
+    env_file:
+      - stack.env
+    networks:
+      - internal
+      - db-network
 
   # Helper to run commands (GELF logging disabled)
   run:
@@ -116,6 +156,13 @@ services:
     environment:
       LEGACY_APP_COOKIE_DOMAIN: ${BEABEE_COOKIE_DOMAIN}
       TRUSTED_ORIGINS: ${BEABEE_TRUSTEDORIGINS-}
+    volumes:
+      - upload_data:/old_data
+    depends_on:
+      - api_app
+      - app
+      - frontend
+      - webhook_app
     networks:
       - internal
       - traefik-ingress
@@ -148,4 +195,5 @@ networks:
 
 volumes:
   upload_data:
+  minio_data:
   telegram-bot_data:
