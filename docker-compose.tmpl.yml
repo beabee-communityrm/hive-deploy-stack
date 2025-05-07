@@ -109,7 +109,7 @@ services:
     environment:
       <<: *logging-env
       hive_service: uploads_migration
-      MIGRATE_UPLOADS: ${MIGRATE_UPLOADS:-false}
+      MIGRATE_UPLOADS: ${MIGRATE_UPLOADS:-true}
     env_file:
       - stack.env
     networks:
