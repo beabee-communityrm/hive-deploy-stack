@@ -42,7 +42,7 @@ services:
     environment:
       <<: *logging-env
       hive_service: api_app
-    # Temporary volume for the case when we need to debug the uploads migration
+    # Temporary volume for the case when we need to debug the uploads migration, can be removed once the migration is done
     volumes:
       - upload_data:/old_data
 
@@ -89,7 +89,7 @@ services:
       <<: *logging-env
       hive_service: migration
 
-  # Uploads migration service
+  # Uploads migration service, can be removed once the migration is done
   uploads_migration:
     image: beabee/beabee-api-app:${HIVE_VERSION:-v0.27.4}
     command: >
@@ -112,7 +112,7 @@ services:
     environment:
       <<: *logging-env
       hive_service: uploads_migration
-      MIGRATE_UPLOADS: ${MIGRATE_UPLOADS:-true}
+      MIGRATE_UPLOADS: ${MIGRATE_UPLOADS:-true} # TODO: Disable this once the migration is done
     env_file:
       - stack.env
     networks:
