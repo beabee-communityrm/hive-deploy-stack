@@ -42,6 +42,9 @@ services:
     environment:
       <<: *logging-env
       hive_service: api_app
+    # Temporary volume for the case when we need to debug the uploads migration
+    volumes:
+      - upload_data:/old_data
 
   webhook_app:
     <<: *service-app
