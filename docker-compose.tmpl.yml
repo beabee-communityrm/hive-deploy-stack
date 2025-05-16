@@ -12,7 +12,7 @@ x-base-app: &base-app
   networks:
     - internal
     - db-network
-  logging:
+  logging: &logging
     driver: gelf
     options:
       gelf-address: "udp://127.0.0.1:12201"
@@ -67,11 +67,15 @@ services:
     volumes:
       - minio_data:/data
     environment:
+      <<: *logging-env
+      hive_service: minio
       MINIO_ROOT_USER: ${BEABEE_MINIO_ROOT_USER:-minioadmin}
       MINIO_ROOT_PASSWORD: ${BEABEE_MINIO_ROOT_PASSWORD:-minioadmin}
       MINIO_REGION: ${BEABEE_MINIO_REGION:-us-east-1}
       BEABEE_MINIO_BUCKET: ${BEABEE_MINIO_BUCKET:-uploads}
       BEABEE_MINIO_ENDPOINT: ${BEABEE_MINIO_ENDPOINT:-http://minio:9000}
+    logging:
+      <<: *logging
     networks:
       - internal
 
