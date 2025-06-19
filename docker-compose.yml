@@ -42,9 +42,6 @@ services:
     environment:
       <<: *logging-env
       hive_service: api_app
-    # Temporary volume for the case when we need to debug the uploads migration, can be removed once the migration is done
-    volumes:
-      - upload_data:/old_data
 
   webhook_app:
     <<: *service-app
@@ -88,36 +85,6 @@ services:
       <<: *logging-env
       hive_service: migration
 
-  # Uploads migration service, can be removed once the migration is done
-  uploads_migration:
-    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.29.0}
-    command: >
-      /bin/sh -c "
-      if [ \"$${MIGRATE_UPLOADS}\" = \"true\" ]; then
-        echo 'Starting uploads migration...' &&
-        yarn backend-cli migrate-uploads --source=/old_data;
-      else
-        echo 'Uploads migration skipped (MIGRATE_UPLOADS is not set to true)' &&
-        exit 0;
-      fi
-      "
-    volumes:
-      - upload_data:/old_data
-    depends_on:
-      migration:
-        condition: service_completed_successfully
-      minio:
-        condition: service_healthy
-    environment:
-      <<: *logging-env
-      hive_service: uploads_migration
-      MIGRATE_UPLOADS: ${MIGRATE_UPLOADS:-true} # TODO: Disable this once the migration is done
-    env_file:
-      - stack.env
-    networks:
-      - internal
-      - db-network
-
   # Helper to run commands (GELF logging disabled)
   run:
     <<: *base-app
@@ -157,8 +124,6 @@ services:
     environment:
       LEGACY_APP_COOKIE_DOMAIN: ${BEABEE_COOKIE_DOMAIN}
       TRUSTED_ORIGINS: ${BEABEE_TRUSTEDORIGINS-}
-    volumes:
-      - upload_data:/old_data
     depends_on:
       - api_app
       - app
@@ -195,6 +160,5 @@ networks:
     external: true
 
 volumes:
-  upload_data:
   minio_data:
   telegram-bot_data:
