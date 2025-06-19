@@ -31,14 +31,14 @@ services:
   # Backend services
   app:
     <<: *service-app
-    image: beabee/beabee-legacy-app:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-legacy-app:${HIVE_VERSION:-v0.29.0}
     environment:
       <<: *logging-env
       hive_service: app
 
   api_app:
     <<: *service-app
-    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.29.0}
     environment:
       <<: *logging-env
       hive_service: api_app
@@ -48,21 +48,21 @@ services:
 
   webhook_app:
     <<: *service-app
-    image: beabee/beabee-webhook-app:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-webhook-app:${HIVE_VERSION:-v0.29.0}
     environment:
       <<: *logging-env
       hive_service: webhook_app
 
   cron_app:
     <<: *service-app
-    image: beabee/beabee-cron-app:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-cron-app:${HIVE_VERSION:-v0.29.0}
     environment:
       <<: *logging-env
       hive_service: cron
 
   # MinIO service
   minio:
-    image: beabee/beabee-minio:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-minio:${HIVE_VERSION:-v0.29.0}
     restart: unless-stopped
     volumes:
       - minio_data:/data
@@ -82,7 +82,7 @@ services:
   # Migration service
   migration:
     <<: *base-app
-    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.29.0}
     command: 'npm run typeorm migration:run'
     environment:
       <<: *logging-env
@@ -90,7 +90,7 @@ services:
 
   # Uploads migration service, can be removed once the migration is done
   uploads_migration:
-    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.29.0}
     command: >
       /bin/sh -c "
       if [ \"$${MIGRATE_UPLOADS}\" = \"true\" ]; then
@@ -121,7 +121,7 @@ services:
   # Helper to run commands (GELF logging disabled)
   run:
     <<: *base-app
-    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.29.0}
     profiles:
       - tools
     logging:
@@ -129,7 +129,7 @@ services:
 
   # Frontend service
   frontend:
-    image: beabee/beabee-frontend:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-frontend:${HIVE_VERSION:-v0.29.0}
     restart: unless-stopped
     environment:
       APP_BASE_URL: ${BEABEE_AUDIENCE}
@@ -144,7 +144,7 @@ services:
 
   # Application router
   app_router:
-    image: beabee/beabee-router:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-router:${HIVE_VERSION:-v0.29.0}
     restart: unless-stopped
     labels:
       - "traefik.docker.network=traefik-ingress"
