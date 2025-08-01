@@ -124,6 +124,8 @@ services:
     environment:
       LEGACY_APP_COOKIE_DOMAIN: ${BEABEE_COOKIE_DOMAIN}
       TRUSTED_ORIGINS: ${BEABEE_TRUSTEDORIGINS-}
+    volumes:
+      - upload_data:/old_data
     depends_on:
       - api_app
       - app
@@ -160,5 +162,6 @@ networks:
     external: true
 
 volumes:
+  upload_data:
   minio_data:
   telegram-bot_data:
