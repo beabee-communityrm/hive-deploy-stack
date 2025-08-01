@@ -42,9 +42,6 @@ services:
     environment:
       <<: *logging-env
       hive_service: api_app
-    # Temporary volume for the case when we need to debug the uploads migration, can be removed once the migration is done
-    volumes:
-      - upload_data:/old_data
 
   webhook_app:
     <<: *service-app
@@ -88,36 +85,6 @@ services:
       <<: *logging-env
       hive_service: migration
 
-  # Uploads migration service, can be removed once the migration is done
-  uploads_migration:
-    image: beabee/beabee-api-app:${HIVE_VERSION:-__VERSION__}
-    command: >
-      /bin/sh -c "
-      if [ \"$${MIGRATE_UPLOADS}\" = \"true\" ]; then
-        echo 'Starting uploads migration...' &&
-        yarn backend-cli migrate-uploads --source=/old_data;
-      else
-        echo 'Uploads migration skipped (MIGRATE_UPLOADS is not set to true)' &&
-        exit 0;
-      fi
-      "
-    volumes:
-      - upload_data:/old_data
-    depends_on:
-      migration:
-        condition: service_completed_successfully
-      minio:
-        condition: service_healthy
-    environment:
-      <<: *logging-env
-      hive_service: uploads_migration
-      MIGRATE_UPLOADS: ${MIGRATE_UPLOADS:-true} # TODO: Disable this once the migration is done
-    env_file:
-      - stack.env
-    networks:
-      - internal
-      - db-network
-
   # Helper to run commands (GELF logging disabled)
   run:
     <<: *base-app
@@ -136,7 +103,7 @@ services:
       API_BASE_URL: /api/1.0
       CNR_MODE: ${BEABEE_CNR_MODE-}
       EXPERIMENTAL_FEATURES: ${BEABEE_EXPERIMENTAL_FEATURES-}
-      APPSIGNAL_KEY: ${APPSIGNAL_KEY-}
+      APPSIGNAL_KEY: ${BEABEE_APPSIGNAL_KEY-${APPSIGNAL_KEY-}} # Fallback to APPSIGNAL_KEY if not set
       CAPTCHAFOX_KEY: ${BEABEE_CAPTCHAFOX_KEY-}
       MAPTILER_KEY: ${BEABEE_MAPTILER_KEY-}
     networks:

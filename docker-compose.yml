@@ -31,38 +31,35 @@ services:
   # Backend services
   app:
     <<: *service-app
-    image: beabee/beabee-legacy-app:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-legacy-app:${HIVE_VERSION:-v0.31.0}
     environment:
       <<: *logging-env
       hive_service: app
 
   api_app:
     <<: *service-app
-    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.31.0}
     environment:
       <<: *logging-env
       hive_service: api_app
-    # Temporary volume for the case when we need to debug the uploads migration, can be removed once the migration is done
-    volumes:
-      - upload_data:/old_data
 
   webhook_app:
     <<: *service-app
-    image: beabee/beabee-webhook-app:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-webhook-app:${HIVE_VERSION:-v0.31.0}
     environment:
       <<: *logging-env
       hive_service: webhook_app
 
   cron_app:
     <<: *service-app
-    image: beabee/beabee-cron-app:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-cron-app:${HIVE_VERSION:-v0.31.0}
     environment:
       <<: *logging-env
       hive_service: cron
 
   # MinIO service
   minio:
-    image: beabee/beabee-minio:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-minio:${HIVE_VERSION:-v0.31.0}
     restart: unless-stopped
     volumes:
       - minio_data:/data
@@ -82,46 +79,16 @@ services:
   # Migration service
   migration:
     <<: *base-app
-    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.31.0}
     command: 'npm run typeorm migration:run'
     environment:
       <<: *logging-env
       hive_service: migration
 
-  # Uploads migration service, can be removed once the migration is done
-  uploads_migration:
-    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.28.1}
-    command: >
-      /bin/sh -c "
-      if [ \"$${MIGRATE_UPLOADS}\" = \"true\" ]; then
-        echo 'Starting uploads migration...' &&
-        yarn backend-cli migrate-uploads --source=/old_data;
-      else
-        echo 'Uploads migration skipped (MIGRATE_UPLOADS is not set to true)' &&
-        exit 0;
-      fi
-      "
-    volumes:
-      - upload_data:/old_data
-    depends_on:
-      migration:
-        condition: service_completed_successfully
-      minio:
-        condition: service_healthy
-    environment:
-      <<: *logging-env
-      hive_service: uploads_migration
-      MIGRATE_UPLOADS: ${MIGRATE_UPLOADS:-true} # TODO: Disable this once the migration is done
-    env_file:
-      - stack.env
-    networks:
-      - internal
-      - db-network
-
   # Helper to run commands (GELF logging disabled)
   run:
     <<: *base-app
-    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.31.0}
     profiles:
       - tools
     logging:
@@ -129,14 +96,14 @@ services:
 
   # Frontend service
   frontend:
-    image: beabee/beabee-frontend:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-frontend:${HIVE_VERSION:-v0.31.0}
     restart: unless-stopped
     environment:
       APP_BASE_URL: ${BEABEE_AUDIENCE}
       API_BASE_URL: /api/1.0
       CNR_MODE: ${BEABEE_CNR_MODE-}
       EXPERIMENTAL_FEATURES: ${BEABEE_EXPERIMENTAL_FEATURES-}
-      APPSIGNAL_KEY: ${APPSIGNAL_KEY-}
+      APPSIGNAL_KEY: ${BEABEE_APPSIGNAL_KEY-${APPSIGNAL_KEY-}} # Fallback to APPSIGNAL_KEY if not set
       CAPTCHAFOX_KEY: ${BEABEE_CAPTCHAFOX_KEY-}
       MAPTILER_KEY: ${BEABEE_MAPTILER_KEY-}
     networks:
@@ -144,7 +111,7 @@ services:
 
   # Application router
   app_router:
-    image: beabee/beabee-router:${HIVE_VERSION:-v0.28.1}
+    image: beabee/beabee-router:${HIVE_VERSION:-v0.31.0}
     restart: unless-stopped
     labels:
       - "traefik.docker.network=traefik-ingress"

@@ -1,6 +1,6 @@
 services:
   mail:
-    image: maildev/maildev:2.1.0
+    image: maildev/maildev:2.2.1
     restart: unless-stopped
     labels:
       - "traefik.docker.network=traefik-ingress"
