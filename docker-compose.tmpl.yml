@@ -12,6 +12,7 @@ x-base-app: &base-app
   networks:
     - internal
     - db-network
+    - storage-network
   logging: &logging
     driver: gelf
     options:
