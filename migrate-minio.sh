@@ -41,5 +41,13 @@ mc admin policy attach local $minio_bucket-rw --user $minio_user
 mc alias set local http://localhost:9000 \$MINIO_ROOT_USER \$MINIO_ROOT_PASSWORD
 mc alias set remote http://minio-minio-1:9000 $minio_user "$minio_password"
 
-mc mirror local/uploads remote/$minio_bucket
+mc mirror -a local/uploads remote/$minio_bucket
+
+####################
+
+
+BEABEE_MINIO_ENDPOINT=http://minio-minio-1:9000
+BEABEE_MINIO_BUCKET=$minio_bucket
+BEABEE_MINIO_ROOT_USER=$minio_user
+BEABEE_MINIO_ROOT_PASSWORD=$minio_password
 EOF
