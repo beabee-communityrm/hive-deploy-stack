@@ -75,6 +75,7 @@ services:
       <<: *logging
     networks:
       - internal
+      - storage-network
 
   # Migration service
   migration:
@@ -157,6 +158,8 @@ networks:
   internal:
     driver: bridge
   db-network:
+    external: true
+  storage-network:
     external: true
   traefik-ingress:
     external: true
