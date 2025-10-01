@@ -58,26 +58,6 @@ services:
       <<: *logging-env
       hive_service: cron
 
-  # MinIO service
-  minio:
-    image: beabee/beabee-minio:${HIVE_VERSION:-v0.33.8}
-    restart: unless-stopped
-    volumes:
-      - minio_data:/data
-    environment:
-      <<: *logging-env
-      hive_service: minio
-      MINIO_ROOT_USER: ${BEABEE_MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${BEABEE_MINIO_ROOT_PASSWORD:-minioadmin}
-      MINIO_REGION: ${BEABEE_MINIO_REGION:-us-east-1}
-      BEABEE_MINIO_BUCKET: ${BEABEE_MINIO_BUCKET:-uploads}
-      BEABEE_MINIO_ENDPOINT: ${BEABEE_MINIO_ENDPOINT:-http://minio:9000}
-    logging:
-      <<: *logging
-    networks:
-      - internal
-      - storage-network
-
   # Migration service
   migration:
     <<: *base-app
@@ -167,5 +147,4 @@ networks:
 
 volumes:
   upload_data:
-  minio_data:
   telegram-bot_data:

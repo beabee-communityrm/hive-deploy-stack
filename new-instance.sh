@@ -16,6 +16,10 @@ nl_secret=$(pwgen 64)
 db_name=beabee-$name
 db_pass=$(pwgen 64)
 
+minio_user=$db_name
+minio_bucket=$db_name
+minio_secretkey=$(pwgen -y 24)
+
 cat <<EOF
 BEABEE_DOMAIN=$domain
 BEABEE_AUDIENCE=https://$domain
@@ -31,6 +35,11 @@ BEABEE_CURRENCYSYMBOL=€
 BEABEE_APPOVERRIDES='{ "gift": { "config": { "disabled": true } }, "projects": { "config": { "disabled": true } }, "settings": { "subApps": { "pages": { "config": { "hidden": true } }, "newsletters": { "config": { "hidden": true } }, "email": { "config": { "hidden": true } }, "options": { "config": { "hidden": true } } } }, "tools": { "subApps": { "referrals": { "config": { "disabled": true } } } }, "polls": { "config": { "menu": "none" } }, "reports": { "config": { "disabled": true } } }'
 
 BEABEE_DATABASE_URL=postgres://$db_name:$db_pass@postgres-postgres-1-1/$db_name
+
+BEABEE_MINIO_ENDPOINT=http://minio-minio-1:9000
+BEABEE_MINIO_BUCKET=$minio_bucket
+BEABEE_MINIO_ACCESSKEY=$minio_user
+BEABEE_MINIO_SECRETKEY=$minio_secretkey
 
 BEABEE_EMAIL_PROVIDER=sendgrid
 BEABEE_EMAIL_SETTINGS_APIKEY=SG.???
@@ -93,6 +102,45 @@ GRANT SELECT ON contact_role TO "beabee-invoices";
 GRANT SELECT (id, amount, status, "chargeDate") ON payment TO "beabee-invoices";
 
 EOF
+
+echo
+echo ===============================================================
+echo
+echo -- Storage initialisation
+
+cat <<EOF
+mc mb local/$minio_bucket
+
+cat > policy.json <<EOP
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["s3:ListBucket"],
+      "Resource": ["arn:aws:s3:::$minio_bucket"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:AbortMultipartUpload",
+        "s3:ListMultipartUploadParts",
+        "s3:ListBucketMultipartUploads"
+      ],
+      "Resource": ["arn:aws:s3:::$minio_bucket/*"]
+    }
+  ]
+}
+EOP
+mc admin policy create local $minio_bucket-rw policy.json
+
+mc admin user add local $minio_user "$minio_secretkey"
+mc admin policy attach local $minio_bucket-rw --user $minio_user
+EOF
+
 
 echo
 echo ===============================================================
