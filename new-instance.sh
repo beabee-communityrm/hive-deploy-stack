@@ -10,7 +10,6 @@ domain=$2
 
 secret=$(pwgen 64)
 service_secret=$(pwgen 64)
-gc_secret=$(pwgen 128)
 nl_secret=$(pwgen 64)
 
 db_name=beabee-$name
@@ -18,7 +17,7 @@ db_pass=$(pwgen 64)
 
 minio_user=$db_name
 minio_bucket=$db_name
-minio_secretkey=$(pwgen -y 24)
+minio_secretkey=$(pwgen 24)
 
 echo ===============================================================
 echo
@@ -182,13 +181,6 @@ echo -- \(e.g. Send on Vaultwarden\)
 echo
 
 cat <<EOF
-## GoCardless
-
-Webhook URL: https://$domain/webhook/gc
-Secret: $gc_secret
-
-
 ## Mailchimp
-
 Webhook URL: https://$domain/webhook/mailchimp?secret=$nl_secret
 EOF
