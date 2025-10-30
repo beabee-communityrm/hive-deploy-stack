@@ -20,6 +20,12 @@ minio_user=$db_name
 minio_bucket=$db_name
 minio_secretkey=$(pwgen -y 24)
 
+echo ===============================================================
+echo
+echo -- Stack environment variables
+echo -- Copy these to the new stack in Portainer
+echo
+
 cat <<EOF
 BEABEE_DOMAIN=$domain
 BEABEE_AUDIENCE=https://$domain
@@ -74,11 +80,21 @@ echo
 echo ===============================================================
 echo
 echo -- Database initialisation
+echo -- Run each step separately in the psql console on the Postgres container
+echo
 
 cat <<EOF
+--- 1. Create database and user
+
 CREATE USER "$db_name" WITH PASSWORD '$db_pass';
 CREATE DATABASE "$db_name" WITH OWNER "$db_name";
+
+--- 2. Connect to database
+
 \c "$db_name"
+
+--- 3. Setup database
+
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 GRANT ALL ON SCHEMA public TO "$db_name";
@@ -94,7 +110,7 @@ GRANT USAGE ON SCHEMA invoices TO "beabee-invoices";
 
 GRANT SELECT, INSERT ON invoices.payment_seen TO "beabee-invoices";
 
--- Post migration step for invoicing
+--- 4. Post stack migration setup
 
 GRANT SELECT (starts) ON callout TO "beabee-invoices";
 GRANT SELECT (id, "contributionMonthlyAmount", "contributionType") ON contact TO "beabee-invoices";
@@ -107,8 +123,12 @@ echo
 echo ===============================================================
 echo
 echo -- Storage initialisation
+echo -- Run in a bash shell on the MinIO container
+echo
 
 cat <<EOF
+mc alias set local http://localhost:9000 admin "\$MINIO_ROOT_PASSWORD"
+
 mc mb local/$minio_bucket
 
 cat > policy.json <<EOP
@@ -145,18 +165,27 @@ EOF
 echo
 echo ===============================================================
 echo
+echo -- DNS records
+echo -- Send this to the client so they can install the records
+echo
 
 cat <<EOF
-# DNS records
-
 Type: CNAME
 Name: $domain
 Value: $name.clients.hive.beabee.io
 
-... add other records
+... add other records from SendGrid
+EOF
 
-# Secrets
+echo
+echo ===============================================================
+echo
+echo -- Secrets
+echo -- Share these secrets to the client using a zero-knowledge encryption service
+echo -- \(e.g. Send on Vaultwarden\)
+echo
 
+cat <<EOF
 ## GoCardless
 
 Webhook URL: https://$domain/webhook/gc
