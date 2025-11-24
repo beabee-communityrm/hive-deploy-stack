@@ -43,8 +43,8 @@ BEABEE_DATABASE_URL=postgres://$db_name:$db_pass@postgres-postgres-1-1/$db_name
 
 BEABEE_MINIO_ENDPOINT=http://minio-minio-1:9000
 BEABEE_MINIO_BUCKET=$minio_bucket
-BEABEE_MINIO_ACCESSKEY=$minio_user
-BEABEE_MINIO_SECRETKEY=$minio_secretkey
+BEABEE_MINIO_ROOT_USER=$minio_user
+BEABEE_MINIO_ROOT_PASSWORD=$minio_secretkey
 
 BEABEE_EMAIL_PROVIDER=sendgrid
 BEABEE_EMAIL_SETTINGS_APIKEY=SG.???
