@@ -6,7 +6,8 @@ if [ $# -ne 2 ]; then
 fi
 
 name=$1
-domain=$2
+main_domain=$2
+hive_domain=$1.clients.hive.beabee.io
 
 secret=$(pwgen 64)
 service_secret=$(pwgen 64)
@@ -26,12 +27,14 @@ echo -- Copy these to the new stack in Portainer
 echo
 
 cat <<EOF
-BEABEE_DOMAIN=$domain
-BEABEE_AUDIENCE=https://$domain
+HIVE_ID=$name
+
+BEABEE_DOMAIN=$main_domain
+BEABEE_AUDIENCE=https://$main_domain
 BEABEE_DEV=false
 BEABEE_SECRET=$secret
 BEABEE_SERVICE_SECRET=$service_secret
-BEABEE_COOKIE_DOMAIN=$domain
+BEABEE_COOKIE_DOMAIN=$main_domain
 
 BEABEE_COUNTRYCODE=de
 BEABEE_CURRENCYCODE=EUR
@@ -166,8 +169,8 @@ echo
 
 cat <<EOF
 Type: CNAME
-Name: $domain
-Value: $name.clients.hive.beabee.io
+Name: $main_domain
+Value: $hive_domain
 
 ... add other records from SendGrid
 EOF
@@ -182,5 +185,5 @@ echo
 
 cat <<EOF
 ## Mailchimp
-Webhook URL: https://$domain/webhook/mailchimp?secret=$nl_secret
+Webhook URL: https://$hive_domain/webhook/mailchimp?secret=$nl_secret
 EOF
