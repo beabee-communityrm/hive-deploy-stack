@@ -16,7 +16,7 @@ x-base-app: &base-app
   logging: &logging
     driver: gelf
     options:
-      gelf-address: "udp://127.0.0.1:12201"
+      gelf-address: "tcp://127.0.0.1:12301"
       env: hive_stack,hive_service
 
 # Service app configuration
