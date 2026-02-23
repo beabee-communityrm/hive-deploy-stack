@@ -1,12 +1,13 @@
 version: '3.4'
 
-# Logging environment variables
-x-logging-env: &logging-env
+# Backend environment variables
+x-backend-env: &backend-env
   hive_stack: ${COMPOSE_PROJECT_NAME}
   hive_service: # Set by each service
+  BEABEE_WEBHOOKURL: https://${HIVE_ID}.clients.hive.beabee.io
 
-# Base app configuration
-x-base-app: &base-app
+# Backend app configuration
+x-backend-app: &backend-app
   env_file:
     - stack.env
   networks:
@@ -21,7 +22,7 @@ x-base-app: &base-app
 
 # Service app configuration
 x-service-app: &service-app
-  <<: *base-app
+  <<: *backend-app
   restart: unless-stopped
   depends_on:
     migration:
@@ -34,47 +35,38 @@ services:
     <<: *service-app
     image: beabee/beabee-legacy-app:${HIVE_VERSION:-__VERSION__}
     environment:
-      <<: *logging-env
+      <<: *backend-env
       hive_service: app
 
   api_app:
     <<: *service-app
     image: beabee/beabee-api-app:${HIVE_VERSION:-__VERSION__}
     environment:
-      <<: *logging-env
+      <<: *backend-env
       hive_service: api_app
 
   webhook_app:
     <<: *service-app
     image: beabee/beabee-webhook-app:${HIVE_VERSION:-__VERSION__}
     environment:
-      <<: *logging-env
+      <<: *backend-env
       hive_service: webhook_app
 
   cron_app:
     <<: *service-app
     image: beabee/beabee-cron-app:${HIVE_VERSION:-__VERSION__}
     environment:
-      <<: *logging-env
+      <<: *backend-env
       hive_service: cron
 
   # Migration service
   migration:
-    <<: *base-app
+    <<: *backend-app
     image: beabee/beabee-api-app:${HIVE_VERSION:-__VERSION__}
     command: 'npm run typeorm migration:run'
     environment:
-      <<: *logging-env
+      <<: *backend-env
       hive_service: migration
-
-  # Helper to run commands (GELF logging disabled)
-  run:
-    <<: *base-app
-    image: beabee/beabee-api-app:${HIVE_VERSION:-__VERSION__}
-    profiles:
-      - tools
-    logging:
-      driver: none
 
   # Frontend service
   frontend:
