@@ -33,28 +33,28 @@ services:
   # Backend services
   app:
     <<: *service-app
-    image: beabee/beabee-legacy-app:${HIVE_VERSION:-v0.37.1}
+    image: beabee/beabee-legacy-app:${HIVE_VERSION:-v0.39.0}
     environment:
       <<: *backend-env
       hive_service: app
 
   api_app:
     <<: *service-app
-    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.37.1}
+    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.39.0}
     environment:
       <<: *backend-env
       hive_service: api_app
 
   webhook_app:
     <<: *service-app
-    image: beabee/beabee-webhook-app:${HIVE_VERSION:-v0.37.1}
+    image: beabee/beabee-webhook-app:${HIVE_VERSION:-v0.39.0}
     environment:
       <<: *backend-env
       hive_service: webhook_app
 
   cron_app:
     <<: *service-app
-    image: beabee/beabee-cron-app:${HIVE_VERSION:-v0.37.1}
+    image: beabee/beabee-cron-app:${HIVE_VERSION:-v0.39.0}
     environment:
       <<: *backend-env
       hive_service: cron
@@ -62,7 +62,7 @@ services:
   # Migration service
   migration:
     <<: *backend-app
-    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.37.1}
+    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.39.0}
     command: 'npm run typeorm migration:run'
     environment:
       <<: *backend-env
@@ -70,7 +70,7 @@ services:
 
   # Frontend service
   frontend:
-    image: beabee/beabee-frontend:${HIVE_VERSION:-v0.37.1}
+    image: beabee/beabee-frontend:${HIVE_VERSION:-v0.39.0}
     restart: unless-stopped
     environment:
       APP_BASE_URL: ${BEABEE_AUDIENCE}
@@ -85,7 +85,7 @@ services:
 
   # Application router
   app_router:
-    image: beabee/beabee-router:${HIVE_VERSION:-v0.37.1}
+    image: beabee/beabee-router:${HIVE_VERSION:-v0.39.0}
     restart: unless-stopped
     labels:
       - "traefik.docker.network=traefik-ingress"
