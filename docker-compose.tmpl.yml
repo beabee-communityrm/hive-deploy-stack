@@ -17,7 +17,7 @@ x-backend-app: &backend-app
   logging: &logging
     driver: gelf
     options:
-      gelf-address: "tcp://127.0.0.1:12301"
+      gelf-address: "udp://10.42.6.1:12201"
       env: hive_stack,hive_service
 
 # Service app configuration
