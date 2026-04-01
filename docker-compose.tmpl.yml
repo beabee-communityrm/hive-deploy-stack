@@ -23,7 +23,7 @@ x-backend-app: &backend-app
 # Service app configuration
 x-service-app: &service-app
   <<: *backend-app
-  restart: unless-stopped
+  restart: on-failure:5
   depends_on:
     migration:
       condition: service_completed_successfully
@@ -71,7 +71,7 @@ services:
   # Frontend service
   frontend:
     image: beabee/beabee-frontend:${HIVE_VERSION:-__VERSION__}
-    restart: unless-stopped
+    restart: on-failure:5
     environment:
       APP_BASE_URL: ${BEABEE_AUDIENCE}
       API_BASE_URL: /api/1.0
@@ -86,7 +86,7 @@ services:
   # Application router
   app_router:
     image: beabee/beabee-router:${HIVE_VERSION:-__VERSION__}
-    restart: unless-stopped
+    restart: on-failure:5
     labels:
       - "traefik.docker.network=traefik-ingress"
       - "traefik.enable=true"
@@ -116,7 +116,7 @@ services:
     image: beabee/telegram-bot:latest
     volumes:
       - telegram-bot_data:/app/telegram-bot/data
-    restart: unless-stopped
+    restart: on-failure:5
     environment:
       BEABEE_AUDIENCE: ${BEABEE_AUDIENCE}
       API_PROXY_URL: ${BEABEE_AUDIENCE}
