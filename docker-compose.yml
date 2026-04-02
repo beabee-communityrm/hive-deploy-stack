@@ -17,13 +17,13 @@ x-backend-app: &backend-app
   logging: &logging
     driver: gelf
     options:
-      gelf-address: "tcp://127.0.0.1:12301"
+      gelf-address: "udp://10.42.6.1:12201"
       env: hive_stack,hive_service
 
 # Service app configuration
 x-service-app: &service-app
   <<: *backend-app
-  restart: unless-stopped
+  restart: on-failure:5
   depends_on:
     migration:
       condition: service_completed_successfully
@@ -33,28 +33,28 @@ services:
   # Backend services
   app:
     <<: *service-app
-    image: beabee/beabee-legacy-app:${HIVE_VERSION:-v0.40.3}
+    image: beabee/beabee-legacy-app:${HIVE_VERSION:-v0.41.0}
     environment:
       <<: *backend-env
       hive_service: app
 
   api_app:
     <<: *service-app
-    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.40.3}
+    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.41.0}
     environment:
       <<: *backend-env
       hive_service: api_app
 
   webhook_app:
     <<: *service-app
-    image: beabee/beabee-webhook-app:${HIVE_VERSION:-v0.40.3}
+    image: beabee/beabee-webhook-app:${HIVE_VERSION:-v0.41.0}
     environment:
       <<: *backend-env
       hive_service: webhook_app
 
   cron_app:
     <<: *service-app
-    image: beabee/beabee-cron-app:${HIVE_VERSION:-v0.40.3}
+    image: beabee/beabee-cron-app:${HIVE_VERSION:-v0.41.0}
     environment:
       <<: *backend-env
       hive_service: cron
@@ -62,7 +62,7 @@ services:
   # Migration service
   migration:
     <<: *backend-app
-    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.40.3}
+    image: beabee/beabee-api-app:${HIVE_VERSION:-v0.41.0}
     command: 'npm run typeorm migration:run'
     environment:
       <<: *backend-env
@@ -70,8 +70,8 @@ services:
 
   # Frontend service
   frontend:
-    image: beabee/beabee-frontend:${HIVE_VERSION:-v0.40.3}
-    restart: unless-stopped
+    image: beabee/beabee-frontend:${HIVE_VERSION:-v0.41.0}
+    restart: on-failure:5
     environment:
       APP_BASE_URL: ${BEABEE_AUDIENCE}
       API_BASE_URL: /api/1.0
@@ -85,8 +85,8 @@ services:
 
   # Application router
   app_router:
-    image: beabee/beabee-router:${HIVE_VERSION:-v0.40.3}
-    restart: unless-stopped
+    image: beabee/beabee-router:${HIVE_VERSION:-v0.41.0}
+    restart: on-failure:5
     labels:
       - "traefik.docker.network=traefik-ingress"
       - "traefik.enable=true"
@@ -116,7 +116,7 @@ services:
     image: beabee/telegram-bot:latest
     volumes:
       - telegram-bot_data:/app/telegram-bot/data
-    restart: unless-stopped
+    restart: on-failure:5
     environment:
       BEABEE_AUDIENCE: ${BEABEE_AUDIENCE}
       API_PROXY_URL: ${BEABEE_AUDIENCE}
