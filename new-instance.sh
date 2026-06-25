@@ -16,9 +16,7 @@ nl_secret=$(pwgen 64)
 db_name=beabee-$name
 db_pass=$(pwgen 64)
 
-minio_user=$db_name
-minio_bucket=$db_name
-minio_secretkey=$(pwgen 24)
+minio_bucket=hive-$db_name
 
 echo ===============================================================
 echo
@@ -44,13 +42,13 @@ BEABEE_APPOVERRIDES='{ "gift": { "config": { "disabled": true } }, "projects": {
 
 BEABEE_DATABASE_URL=postgres://$db_name:$db_pass@postgres-postgres-1-1/$db_name
 
-BEABEE_MINIO_ENDPOINT=http://minio-minio-1:9000
+BEABEE_MINIO_ENDPOINT=https://fsn1.your-objectstorage.com
 BEABEE_MINIO_BUCKET=$minio_bucket
-BEABEE_MINIO_ROOT_USER=$minio_user
-BEABEE_MINIO_ROOT_PASSWORD=$minio_secretkey
+BEABEE_MINIO_ROOT_USER=
+BEABEE_MINIO_ROOT_PASSWORD=
 
 BEABEE_EMAIL_PROVIDER=sendgrid
-BEABEE_EMAIL_SETTINGS_APIKEY=SG.???
+BEABEE_EMAIL_SETTINGS_APIKEY=
 
 BEABEE_NEWSLETTER_PROVIDER=none
 
@@ -60,13 +58,13 @@ if [[ $name == cnr-* ]]; then
     echo BEABEE_CNR_MODE=true
 else
     cat <<EOF
-BEABEE_NEWSLETTER_SETTINGS_APIKEY=???
-BEABEE_NEWSLETTER_SETTINGS_DATACENTER=???
-BEABEE_NEWSLETTER_SETTINGS_LISTID=???
+BEABEE_NEWSLETTER_SETTINGS_APIKEY=
+BEABEE_NEWSLETTER_SETTINGS_DATACENTER=
+BEABEE_NEWSLETTER_SETTINGS_LISTID=
 BEABEE_NEWSLETTER_SETTINGS_WEBHOOKSECRET=$nl_secret
 
-BEABEE_STRIPE_PUBLICKEY=pk_live_???
-BEABEE_STRIPE_SECRETKEY=sk_live_???
+BEABEE_STRIPE_PUBLICKEY=
+BEABEE_STRIPE_SECRETKEY=
 BEABEE_STRIPE_COUNTRY=eu
 EOF
 
@@ -109,49 +107,6 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public
     GRANT SELECT ON TABLES TO "beabee-invoices";
 
 EOF
-
-echo
-echo ===============================================================
-echo
-echo -- Storage initialisation
-echo -- Run in a bash shell on the MinIO container
-echo
-
-cat <<EOF
-mc alias set local http://localhost:9000 admin "\$MINIO_ROOT_PASSWORD"
-
-mc mb local/$minio_bucket
-
-cat > policy.json <<EOP
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": ["s3:ListBucket"],
-      "Resource": ["arn:aws:s3:::$minio_bucket"]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "s3:GetObject",
-        "s3:PutObject",
-        "s3:DeleteObject",
-        "s3:AbortMultipartUpload",
-        "s3:ListMultipartUploadParts",
-        "s3:ListBucketMultipartUploads"
-      ],
-      "Resource": ["arn:aws:s3:::$minio_bucket/*"]
-    }
-  ]
-}
-EOP
-mc admin policy create local $minio_bucket-rw policy.json
-
-mc admin user add local $minio_user "$minio_secretkey"
-mc admin policy attach local $minio_bucket-rw --user $minio_user
-EOF
-
 
 echo
 echo ===============================================================
