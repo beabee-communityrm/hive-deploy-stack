@@ -28,13 +28,11 @@ echo
 
 cat <<EOF
 HIVE_ID=$name
+HIVE_DOMAIN=$main_domain
 
-BEABEE_DOMAIN=$main_domain
-BEABEE_AUDIENCE=https://$main_domain
 BEABEE_DEV=false
 BEABEE_SECRET=$secret
 BEABEE_SERVICE_SECRET=$service_secret
-BEABEE_COOKIE_DOMAIN=$main_domain
 
 BEABEE_COUNTRYCODE=de
 BEABEE_CURRENCYCODE=EUR
