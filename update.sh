@@ -2,6 +2,8 @@
 
 VERSION=$(cat VERSION)
 
+exit
+
 if [ "$1" != '--prerelease' ] && \
    [ "$(./semver.sh get prerelease $VERSION)" != '' ]
 then
