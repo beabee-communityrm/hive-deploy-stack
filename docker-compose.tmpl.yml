@@ -4,6 +4,8 @@ version: '3.4'
 x-backend-env: &backend-env
   hive_stack: ${COMPOSE_PROJECT_NAME}
   hive_service: # Set by each service
+  BEABEE_AUDIENCE: https://${HIVE_DOMAIN}
+  BEABEE_COOKIE_DOMAIN: ${HIVE_DOMAIN}
   BEABEE_WEBHOOKURL: https://${HIVE_ID}.clients.hive.beabee.io
 
 # Backend app configuration
@@ -73,7 +75,7 @@ services:
     image: beabee/beabee-frontend:${HIVE_VERSION:-__VERSION__}
     restart: on-failure:5
     environment:
-      APP_BASE_URL: ${BEABEE_AUDIENCE}
+      APP_BASE_URL: https://${HIVE_DOMAIN}
       API_BASE_URL: /api/1.0
       CNR_MODE: ${BEABEE_CNR_MODE-}
       EXPERIMENTAL_FEATURES: ${BEABEE_EXPERIMENTAL_FEATURES-}
@@ -91,13 +93,18 @@ services:
       - "traefik.docker.network=traefik-ingress"
       - "traefik.enable=true"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.entryPoints=https"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${BEABEE_DOMAIN}`) || Host(`${HIVE_ID}.clients.hive.beabee.io`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${HIVE_DOMAIN}`) || Host(`${HIVE_ID}.clients.hive.beabee.io`)"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls=true"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls.certResolver=letsencrypt"
       - "traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=80"
     environment:
-      LEGACY_APP_COOKIE_DOMAIN: ${BEABEE_COOKIE_DOMAIN}
+      LEGACY_APP_COOKIE_DOMAIN: ${HIVE_DOMAIN}
       TRUSTED_ORIGINS: ${BEABEE_TRUSTEDORIGINS-}
+      HIVE_SERVICE_APP: ${HIVE_SERVICE_APP-}
+      HIVE_SERVICE_API_APP: ${HIVE_SERVICE_API_APP-}
+      HIVE_SERVICE_WEBHOOK_APP: ${HIVE_SERVICE_WEBHOOK_APP-}
+      HIVE_SERVICE_FRONTEND: ${HIVE_SERVICE_FRONTEND-}
+      HIVE_SERVICE_TELEGRAM_BOT: ${HIVE_SERVICE_TELEGRAM_BOT-}
     volumes:
       - upload_data:/old_data
     depends_on:
@@ -118,8 +125,8 @@ services:
       - telegram-bot_data:/app/telegram-bot/data
     restart: on-failure:5
     environment:
-      BEABEE_AUDIENCE: ${BEABEE_AUDIENCE}
-      API_PROXY_URL: ${BEABEE_AUDIENCE}
+      BEABEE_AUDIENCE: https://${HIVE_DOMAIN}
+      API_PROXY_URL: https://${HIVE_DOMAIN}
       TELEGRAM_TOKEN: ${BEABEE_TELEGRAM_BOT_TOKEN}
       BEABEE_API_TOKEN: ${BEABEE_TELEGRAM_BOT_API_TOKEN}
       BEABEE_SERVICE_SECRET: ${BEABEE_SERVICE_SECRET}
