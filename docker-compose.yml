@@ -86,12 +86,12 @@ services:
       - internal
 
   # New frontend service, hidden behind the beabee_frontend=new cookie.
-  # Only started for clients that enable it via COMPOSE_PROFILES=frontend-new.
+  # Enable per client by setting FRONTEND_NEW_REPLICAS=1 (defaults to 0 = off).
   frontend-new:
-    profiles:
-      - frontend-new
-    image: beabee/beabee-frontend-new:${HIVE_VERSION:-v0.46.1}
+    image: beabee/beabee-frontend-new:${HIVE_VERSION:-v0.48.0-rc.2}
     restart: on-failure:5
+    deploy:
+      replicas: ${FRONTEND_NEW_REPLICAS:-0}
     environment:
       APP_BASE_URL: https://${HIVE_DOMAIN}
       API_BASE_URL: /api/1.0
