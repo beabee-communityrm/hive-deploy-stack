@@ -85,6 +85,24 @@ services:
     networks:
       - internal
 
+  # New frontend service, hidden behind the beabee_frontend=new cookie.
+  # Only started for clients that enable it via COMPOSE_PROFILES=frontend-new.
+  frontend-new:
+    profiles:
+      - frontend-new
+    image: beabee/beabee-frontend-new:${HIVE_VERSION:-v0.46.1}
+    restart: on-failure:5
+    environment:
+      APP_BASE_URL: https://${HIVE_DOMAIN}
+      API_BASE_URL: /api/1.0
+      CNR_MODE: ${BEABEE_CNR_MODE-}
+      EXPERIMENTAL_FEATURES: ${BEABEE_EXPERIMENTAL_FEATURES-}
+      APPSIGNAL_KEY: ${BEABEE_APPSIGNAL_KEY-}
+      CAPTCHAFOX_KEY: ${BEABEE_CAPTCHAFOX_KEY-}
+      MAPTILER_KEY: ${BEABEE_MAPTILER_KEY-}
+    networks:
+      - internal
+
   # Application router
   app_router:
     image: beabee/beabee-router:${HIVE_VERSION:-v0.47.2}
@@ -104,6 +122,7 @@ services:
       HIVE_SERVICE_API_APP: ${HIVE_SERVICE_API_APP-}
       HIVE_SERVICE_WEBHOOK_APP: ${HIVE_SERVICE_WEBHOOK_APP-}
       HIVE_SERVICE_FRONTEND: ${HIVE_SERVICE_FRONTEND-}
+      HIVE_SERVICE_FRONTEND_NEW: ${HIVE_SERVICE_FRONTEND_NEW-}
       HIVE_SERVICE_TELEGRAM_BOT: ${HIVE_SERVICE_TELEGRAM_BOT-}
     volumes:
       - upload_data:/old_data
