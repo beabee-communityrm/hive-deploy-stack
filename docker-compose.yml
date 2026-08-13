@@ -124,8 +124,6 @@ services:
       HIVE_SERVICE_FRONTEND: ${HIVE_SERVICE_FRONTEND-}
       HIVE_SERVICE_FRONTEND_NEW: ${HIVE_SERVICE_FRONTEND_NEW-}
       HIVE_SERVICE_TELEGRAM_BOT: ${HIVE_SERVICE_TELEGRAM_BOT-}
-    volumes:
-      - upload_data:/old_data
     depends_on:
       - api_app
       - app
