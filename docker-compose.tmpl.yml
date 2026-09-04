@@ -15,11 +15,10 @@ x-backend-app: &backend-app
   networks:
     - internal
     - db-network
-    - storage-network
   logging: &logging
     driver: gelf
     options:
-      gelf-address: "udp://192.168.0.2:12201"
+      gelf-address: "udp://127.0.0.1:12201"
       env: hive_stack,hive_service
 
 # Service app configuration
@@ -93,7 +92,7 @@ services:
       - "traefik.docker.network=traefik-ingress"
       - "traefik.enable=true"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.entryPoints=https"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${HIVE_DOMAIN}`) || Host(`${HIVE_ID}.clients.hive.beabee.io`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${HIVE_DOMAIN}`)"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls=true"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls.certResolver=letsencrypt"
       - "traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=80"
@@ -105,6 +104,8 @@ services:
       HIVE_SERVICE_WEBHOOK_APP: ${HIVE_SERVICE_WEBHOOK_APP-}
       HIVE_SERVICE_FRONTEND: ${HIVE_SERVICE_FRONTEND-}
       HIVE_SERVICE_TELEGRAM_BOT: ${HIVE_SERVICE_TELEGRAM_BOT-}
+    volumes:
+      - upload_data:/old_data
     depends_on:
       - api_app
       - app
@@ -136,8 +137,6 @@ networks:
   internal:
     driver: bridge
   db-network:
-    external: true
-  storage-network:
     external: true
   traefik-ingress:
     external: true
